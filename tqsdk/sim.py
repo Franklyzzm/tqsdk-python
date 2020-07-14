@@ -415,9 +415,7 @@ class TqSim(object):
                 # 除了期权外，主连、指数和组合没有这两个字段
                 return "合约不存在"
             if quote["ins_class"] in ["OPTION", "FUTURE_OPTION"]:
-                if order["price_type"] == "ANY" and order["exchange_id"] != "CZCE":
-                    return f"此交易所（{order['exchange_id']}) 不支持期权市价单"
-                elif order["direction"] == "SELL":  # 期权的SELL义务仓
+                if order["direction"] == "SELL":  # 期权的SELL义务仓
                     if quote["option_class"] == "CALL":
                         # 认购期权义务仓开仓保证金＝[合约最新价 + Max（12% × 合约标的最新价 - 认购期权虚值， 7% × 合约标的前收盘价）] × 合约单位
                         # 认购期权虚值＝Max（行权价 - 合约标的前收盘价，0）；
