@@ -683,7 +683,7 @@ class TqApi(object):
         elif limit_price is None:
             if exchange_id in ["CFFEX", "SHFE", "INE"]:
                 raise Exception(f"{symbol} 不支持市价单，请使用 limit_price 参数指定价格。中金所、上期所、原油交易所不支持市价单。")
-            if exchange_id == "DCE" and quote.ins_class == "OPTION":
+            if exchange_id == "DCE" and quote.ins_class in ["OPTION", "FUTURE_OPTION"]:
                 raise Exception(f"{symbol} 不支持市价单，请使用 limit_price 参数指定价格。大商所期权不支持市价单。")
             msg["price_type"] = "ANY"
             msg["time_condition"] = "IOC"
