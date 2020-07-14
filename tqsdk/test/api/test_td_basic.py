@@ -564,31 +564,30 @@ class TestTdBasic(unittest.TestCase):
         # 测试: 获取数据
         api = TqApi(_ins_url=self.ins_url_2020_05_07, _td_url=self.td_url, _md_url=self.md_url)
 
-        order1 = api.insert_order("CZCE.SR007C5600", "BUY", "OPEN", 2, limit_price=55)
-        order2 = api.insert_order("CZCE.SR007C5600", "BUY", "OPEN", 3, limit_price=55)
-        order3 = api.insert_order("CZCE.SR007C5600", "SELL", "OPEN", 3, limit_price=10)
-        order4 = api.insert_order("CZCE.SR007C5600", "SELL", "OPEN", 3)  # 只有郑商所支持期权市价单
-        order5 = api.insert_order("DCE.m2007-P-2900", "BUY", "OPEN", 1)  # 只有郑商所支持期权市价单
+        order1 = api.insert_order("CZCE.SR009C5600", "BUY", "OPEN", 2, limit_price=55)
+        order2 = api.insert_order("CZCE.SR009C5600", "BUY", "OPEN", 3, limit_price=55)
+        order3 = api.insert_order("CZCE.SR009C5600", "SELL", "OPEN", 3, limit_price=7)
+        order4 = api.insert_order("CZCE.SR009C5600", "SELL", "OPEN", 3)  # 只有郑商所支持期权市价单
+        self.assertRaises(Exception, api.insert_order, "DCE.m2009-P-2900", "BUY", "OPEN", 1) # 只有郑商所支持期权市价单
 
-        while order1.status == "ALIVE" or order2.status == "ALIVE" or order3.status == "ALIVE" or order4.status == "ALIVE" or order5.status == "ALIVE":
+        while order1.status == "ALIVE" or order2.status == "ALIVE" or order3.status == "ALIVE" or order4.status == "ALIVE":
             api.wait_update()
         self.assertEqual(order4.volume_left, 0)
-        self.assertEqual(order5.volume_left, 1)
 
-        position = api.get_position("CZCE.SR007C5600")
-        position2 = api.get_position("DCE.m2007-P-2900")
+        position = api.get_position("CZCE.SR009C5600")
+        position2 = api.get_position("DCE.m2009-P-2900")
         self.assertEqual(0, position2.pos_long)
         self.assertEqual(0, position2.pos_short)
 
         # 测试脚本重新生成后，数据根据实际情况有变化
         self.assertEqual(
-            "{'exchange_id': 'CZCE', 'instrument_id': 'SR007C5600', 'pos_long_his': 0, 'pos_long_today': 5, 'pos_short_his': 0, 'pos_short_today': 6, 'volume_long_today': 5, 'volume_long_his': 0, 'volume_long': 5, 'volume_long_frozen_today': 0, 'volume_long_frozen_his': 0, 'volume_long_frozen': 0, 'volume_short_today': 6, 'volume_short_his': 0, 'volume_short': 6, 'volume_short_frozen_today': 0, 'volume_short_frozen_his': 0, 'volume_short_frozen': 0, 'open_price_long': 55.0, 'open_price_short': 13.5, 'open_cost_long': 2750.0, 'open_cost_short': 810.0, 'position_price_long': 55.0, 'position_price_short': 13.5, 'position_cost_long': 2750.0, 'position_cost_short': 810.0, 'float_profit_long': -1825.0, 'float_profit_short': -300.0, 'float_profit': -2125.0, 'position_profit_long': 0.0, 'position_profit_short': 0.0, 'position_profit': 0.0, 'margin_long': 0.0, 'margin_short': 7785.8, 'margin': 7785.8, 'market_value_long': 925.0, 'market_value_short': -1110.0, 'market_value': -185.0, 'last_price': 18.5}",
+            "{'exchange_id': 'CZCE', 'instrument_id': 'SR009C5600', 'pos_long_his': 0, 'pos_long_today': 5, 'pos_short_his': 0, 'pos_short_today': 6, 'volume_long_today': 5, 'volume_long_his': 0, 'volume_long': 5, 'volume_long_frozen_today': 0, 'volume_long_frozen_his': 0, 'volume_long_frozen': 0, 'volume_short_today': 6, 'volume_short_his': 0, 'volume_short': 6, 'volume_short_frozen_today': 0, 'volume_short_frozen_his': 0, 'volume_short_frozen': 0, 'open_price_long': 55.0, 'open_price_short': 8.5, 'open_cost_long': 2750.0, 'open_cost_short': 510.0, 'position_price_long': 55.0, 'position_price_short': 8.5, 'position_cost_long': 2750.0, 'position_cost_short': 510.0, 'float_profit_long': -2200.0, 'float_profit_short': -150.0, 'float_profit': -2350.0, 'position_profit_long': 0.0, 'position_profit_short': 0.0, 'position_profit': 0.0, 'margin_long': 0.0, 'margin_short': 7551.800000000001, 'margin': 7551.800000000001, 'market_value_long': 550.0, 'market_value_short': -660.0, 'market_value': -110.0, 'last_price': 11.0}",
             str(position))
         self.assertEqual(-1, position.pos)
         self.assertEqual(5, position.pos_long)
         self.assertEqual(6, position.pos_short)
         self.assertEqual(position.exchange_id, "CZCE")
-        self.assertEqual(position.instrument_id, "SR007C5600")
+        self.assertEqual(position.instrument_id, "SR009C5600")
         self.assertEqual(position.pos_long_his, 0)
         self.assertEqual(position.pos_long_today, 5)
         self.assertEqual(position.pos_short_his, 0)
@@ -606,26 +605,26 @@ class TestTdBasic(unittest.TestCase):
         self.assertEqual(position.volume_short_frozen_his, 0)
         self.assertEqual(position.volume_short_frozen, 0)
         self.assertEqual(position.open_price_long, 55.0)
-        self.assertEqual(position.open_price_short, 13.5)
+        self.assertEqual(position.open_price_short, 8.5)
         self.assertEqual(position.open_cost_long, 2750.0)
-        self.assertEqual(position.open_cost_short, 810.0)
+        self.assertEqual(position.open_cost_short, 510.0)
         self.assertEqual(position.position_price_long, 55.0)
-        self.assertEqual(position.position_price_short, 13.5)
+        self.assertEqual(position.position_price_short, 8.5)
         self.assertEqual(position.position_cost_long, 2750.0)
-        self.assertEqual(position.position_cost_short, 810.0)
-        self.assertEqual(position.float_profit_long, -1825.0)
-        self.assertEqual(position.float_profit_short, -300.0)
-        self.assertEqual(position.float_profit, -2125.0)
+        self.assertEqual(position.position_cost_short, 510.0)
+        self.assertEqual(position.float_profit_long, -2200.0)
+        self.assertEqual(position.float_profit_short, -150.0)
+        self.assertEqual(position.float_profit, -2350.0)
         self.assertEqual(position.position_profit_long, 0.0)
         self.assertEqual(position.position_profit_short, 0.0)
         self.assertEqual(position.position_profit, 0.0)
         self.assertEqual(position.margin_long, 0.0)
-        self.assertEqual(position.margin_short, 7785.8)
-        self.assertEqual(position.margin, 7785.8)
-        self.assertEqual(position.market_value_long, 925.0)
-        self.assertEqual(position.market_value_short, -1110.0)
-        self.assertEqual(position.market_value, -185.0)
-        self.assertEqual(position.last_price, 18.5)
+        self.assertEqual(position.margin_short, 7551.800000000001)
+        self.assertEqual(position.margin, 7551.800000000001)
+        self.assertEqual(position.market_value_long, 550.0)
+        self.assertEqual(position.market_value_short, -660.0)
+        self.assertEqual(position.market_value, -110.0)
+        self.assertEqual(position.last_price, 11.0)
 
         # 其他取值方式测试
         self.assertEqual(position["pos_long_today"], 5)
